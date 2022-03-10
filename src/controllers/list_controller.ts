@@ -2,6 +2,7 @@ import TelegramBot from "node-telegram-bot-api";
 import Parser from "rss-parser";
 import User from "../models/User";
 import { numberToEmoji } from "../utils/emoji_number";
+import { generateKeyboard } from "../utils/keyboard";
 const parser = new Parser();
 
 export const getUserBookmarks = async (telegramId: string) => {
@@ -14,11 +15,8 @@ export const getUserBookmarks = async (telegramId: string) => {
             }
         }
         const message = user.rssUrl.map((url, i) => `${numberToEmoji(i + 1)} - <b>${url.title}</b>`).join("\n\n");
-        const keyboard:TelegramBot.KeyboardButton[][] = [];
-        for (let i = 0; i < user.rssUrl.length; i++) {
-            keyboard.push([{ text: `/view ${user.rssUrl[i].title}`}]);
-        }
-
+        const keyboard = generateKeyboard(user);
+        
         return {
             message: `<b>Your bookmarks 🏷️</b>\n\n${message}`,
             error: false,

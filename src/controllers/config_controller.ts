@@ -1,4 +1,5 @@
 import User from "../models/User"
+import { generateKeyboard } from "../utils/keyboard";
 import { urlTitle } from "../utils/url_title";
 
 export const configRssUrl = async (telegramId: string, rssUrl: string) => {
@@ -16,12 +17,24 @@ export const configRssUrl = async (telegramId: string, rssUrl: string) => {
                 title: urlTitle(rssUrl),
             });
             await newUser.save();
-            return `<b>${urlTitle(rssUrl)}</b> added successfully!`;
+            const keyboard = generateKeyboard(newUser);
+            const message = `<b>${urlTitle(rssUrl)}</b> added successfully!`;
+            return {
+                message,
+                error: false,
+                keyboard,
+            }
         } else {
             // check rss url is already added
             const rssUrlExists = user.rssUrl.find(url => url.url === rssUrl);
             if (rssUrlExists) {
-                return `<b>${rssUrlExists.title}</b> already added!`;
+                const message = `<b>${rssUrlExists.title}</b> already added!`;
+                const keyboard = generateKeyboard(user);
+                return {
+                    message,
+                    error: false,
+                    keyboard,
+                }
             } else {
                 // push the new url
                 // checking if rssUrl array is 5
@@ -29,13 +42,17 @@ export const configRssUrl = async (telegramId: string, rssUrl: string) => {
                 const arrayLength = user.rssUrl.length;
                 const maxLength = 5;
                 if (arrayLength >= maxLength) {
-                    return "You can only add 5 RSS feeds. Please remove one RSS feed and try again.";
+                    return {
+                        message: "You can only add 5 RSS feeds. Please remove one RSS feed and try again.",
+                        error: true,
+                        keyboard: generateKeyboard(user),
+                    }
                 }
                 let title = urlTitle(rssUrl);
                 // check if title is already added
                 const titleExist = user.rssUrl.find(url => url.title === title);
 
-                if(titleExist) {
+                if (titleExist) {
                     const sameTitle = user.rssUrl.filter(url => {
                         // match the title using regex
                         return url.title.match(new RegExp(title, "i"));
@@ -49,10 +66,20 @@ export const configRssUrl = async (telegramId: string, rssUrl: string) => {
                     title,
                 });
                 await user.save();
-                return `<b>${title}</b> added successfully!`;
+                const keyboard = generateKeyboard(user);
+                const message = `<b>${title}</b> added successfully!`;
+                return {
+                    message,
+                    error: false,
+                    keyboard,
+                }
             }
         }
     } catch (e) {
-        return "Something went wrong"
+        return {
+            message: "Something went wrong. Please try again.",
+            error: true,
+            keyboard: [],
+        }
     }
 }

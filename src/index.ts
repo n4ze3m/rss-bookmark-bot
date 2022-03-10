@@ -9,6 +9,7 @@ import text from "./utils/text";
 import mongoose from "mongoose";
 import { configRssUrl } from "./controllers/config_controller";
 import { getRSSFeed, getUserBookmarks } from "./controllers/list_controller";
+import { chooseRssToDelete, removeRss } from "./controllers/remove_controller";
 // the main function for the bot
 const main = async () => {
     // connecting to the database
@@ -50,9 +51,14 @@ const main = async () => {
                 return;
             }
 
-            const message = await configRssUrl(msg.from?.id.toString()!, url);
-            // sending the message
-            bot.sendMessage(chatId, message, { parse_mode: "HTML" });
+            const { message, error, keyboard } = await configRssUrl(msg.from?.id.toString()!, url);
+            if (error) {
+                bot.sendMessage(chatId, message, { parse_mode: "HTML" });
+                return;
+            } else {
+                // const inline_keyboard = keyboard
+                bot.sendMessage(chatId, message, { parse_mode: "HTML", reply_markup: { keyboard } });
+            }
         });
         // /list - to list all your RSS feeds
         bot.onText(/\/list/, async (msg) => {
@@ -85,6 +91,49 @@ const main = async () => {
 
             // check url is valid
             bot.sendMessage(chatId, message, { parse_mode: "HTML", disable_web_page_preview: true });
+        });
+        // /remove - to delete a RSS feed
+        bot.onText(/\/remove/, async (msg) => {
+            const chatId = msg.chat.id;
+            // the bot will send a message to the user with the following html markup
+            const { message, error, keyboard: inline_keyboard } = await chooseRssToDelete(msg.from?.id.toString()!);
+
+            if (!error) {
+                bot.sendMessage(chatId, message, {
+                    parse_mode: "HTML",
+                    reply_markup: {
+                        inline_keyboard
+                    }
+                });
+            } else {
+                // sending the message
+                bot.sendMessage(chatId, message, { parse_mode: "HTML" });
+            }
+        })
+        // this will be for callback
+        bot.on('callback_query', async (msg) => {
+            bot.answerCallbackQuery(msg.id);
+            // delete code
+            const { message, error, keyboard } = await removeRss(msg.from?.id.toString()!, msg.data!);
+            if (!error) {
+                bot.editMessageText(message, {
+                    chat_id: msg!.message!.chat.id!,
+                    message_id: msg!.message!.message_id!,
+                    parse_mode: "HTML",
+                })
+                bot.sendMessage(msg.message!.chat.id!, "Keyboard updated!", {
+                    parse_mode: "HTML",
+                    reply_markup: {
+                        keyboard
+                    }
+                })
+            } else {
+                bot.editMessageText(message, {
+                    chat_id: msg!.message!.chat.id!,
+                    message_id: msg!.message!.message_id!,
+                    parse_mode: "HTML",
+                })
+            }
         });
     }).catch(err => {
         console.log(err);

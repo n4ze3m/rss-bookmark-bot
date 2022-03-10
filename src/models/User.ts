@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 
-interface UserTelegram {
+export interface UserTelegram {
     telegramId: string;
     rssUrl: [
         {
