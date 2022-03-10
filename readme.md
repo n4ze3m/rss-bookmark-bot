@@ -1,4 +1,4 @@
-# DDD Bookmark bot
+# RSS Bookmark bot
 
 Telegram bot as [RSS Reader](https://t.me/ddd_bookmark_bot). User can add RSS feeds to the bot and can read them in the chat.
 
