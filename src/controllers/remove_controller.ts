@@ -72,9 +72,9 @@ export const removeRss = async (telegramId: string, title: string) => {
             const rssUrlIndex = user.rssUrl.indexOf(rssUrl);
 
             user.rssUrl.splice(rssUrlIndex, 1);
-            await user.save();
+            const newUser = await user.save();
 
-            const keyboard = generateKeyboard(user);
+            const keyboard = generateKeyboard(newUser);
             const message = `RSS feed (${title}) removed successfully.`;
             return {
                 message,

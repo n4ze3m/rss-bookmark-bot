@@ -16,9 +16,16 @@ export const getUserBookmarks = async (telegramId: string) => {
         }
         const message = user.rssUrl.map((url, i) => `${numberToEmoji(i + 1)} - <b>${url.title}</b>`).join("\n\n");
         const keyboard = generateKeyboard(user);
+
+        let title:string = ""
+        if(keyboard.length === 0) {
+            title = "Oh no! You don't have any bookmarks 🏷️"
+        } else {
+            title = "<b>Your bookmarks 🏷️</b>"
+        }
         
         return {
-            message: `<b>Your bookmarks 🏷️</b>\n\n${message}`,
+            message: `${title}\n\n${message}`,
             error: false,
             keyboard
         }
@@ -32,7 +39,7 @@ export const getUserBookmarks = async (telegramId: string) => {
 export const getRSSFeed = async (telegramId: string,rssUrl: string) => {
     try {
         const user = await User.findOne({ telegramId });
-        if(!user) {2
+        if(!user) {
             return "You don't have any RSS feeds yet.\n\n Please /config your  RSS url to get started."
         }
         const rssUrlExists = user.rssUrl.find(url => url.title === rssUrl);
