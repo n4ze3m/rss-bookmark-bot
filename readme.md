@@ -1,8 +1,11 @@
 # RSS Bookmark bot
 
-Telegram bot as [RSS Reader](https://t.me/ddd_bookmark_bot). User can add RSS feeds to the bot and can read them in the chat.
+Telegram bot as [RSS Reader](https://t.me/feed_reader_rss_bot). User can add RSS feeds to the bot and can read them in the chat.
 
 Bot is using [Telegram Bot API](https://core.telegram.org/bots/api) and [Node.js](https://nodejs.org/en/).
+
+
+![Demo Gif](https://i.imgur.com/zl009tA.gif)
 
 ## Before you start
 
@@ -40,4 +43,3 @@ yarn dev
 - `/view TITLE` - show RSS feed items
 
 - `/remove` - remove RSS feed from the bot
-
