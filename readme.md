@@ -4,6 +4,9 @@ Telegram bot as [RSS Reader](https://t.me/feed_reader_rss_bot). User can add RSS
 
 Bot is using [Telegram Bot API](https://core.telegram.org/bots/api) and [Node.js](https://nodejs.org/en/).
 
+__🥉3rd place in [Daily.dev hackathon](https://twitter.com/dailydotdev/status/1507003555110027276)__
+
+Since the contest is over, I will try to continue to develop the bot. If you want to contribute, please ping me or send me a pull request. I know it's not easy, but I will try to make it better and more features.
 
 ![Demo Gif](https://i.imgur.com/zl009tA.gif)
 
