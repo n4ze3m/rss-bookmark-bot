@@ -8,17 +8,18 @@ export const configRssUrl = async (telegramId: string, rssUrl: string) => {
         const user = await User.findOne({ telegramId });
         if (!user) {
             // create a new user
+            let title =  await urlTitle(rssUrl);
             const newUser = new User({
                 telegramId,
             });
             // push the new url
             newUser.rssUrl.push({
                 url: rssUrl,
-                title: urlTitle(rssUrl),
+                title,
             });
             await newUser.save();
             const keyboard = generateKeyboard(newUser);
-            const message = `<b>${urlTitle(rssUrl)}</b> added successfully!`;
+            const message = `<b>${title}</b> added successfully!`;
             return {
                 message,
                 error: false,
@@ -37,18 +38,18 @@ export const configRssUrl = async (telegramId: string, rssUrl: string) => {
                 }
             } else {
                 // push the new url
-                // checking if rssUrl array is 5
+                // checking if rssUrl array is 10
                 // you can change the value to any number
                 const arrayLength = user.rssUrl.length;
-                const maxLength = 5;
+                const maxLength = 10;
                 if (arrayLength >= maxLength) {
                     return {
-                        message: "You can only add 5 RSS feeds. Please remove one RSS feed and try again.",
+                        message: "You can only add 10 RSS feeds. Please remove one RSS feed and try again.",
                         error: true,
                         keyboard: generateKeyboard(user),
                     }
                 }
-                let title = urlTitle(rssUrl);
+                let title =  await urlTitle(rssUrl);
                 // check if title is already added
                 const titleExist = user.rssUrl.find(url => url.title === title);
 

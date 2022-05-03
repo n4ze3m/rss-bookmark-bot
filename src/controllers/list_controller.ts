@@ -47,6 +47,9 @@ export const getRSSFeed = async (telegramId: string,rssUrl: string) => {
             return "Input url is not found in your RSS feeds. Please check the url and try again."
         }
         const feed = await parser.parseURL(rssUrlExists.url);
+        if(feed.items.length > 20) {
+            feed.items = feed.items.slice(0, 20);
+        }
         const items = feed.items.map((item, i) => `${numberToEmoji(i + 1)} - <a href=\"${item.link}\"> <b>${item.title}</b> </a>`).join("\n\n");
         const title = feed.title || "Your RSS feed from " + rssUrlExists.title;
         return `<b>${title}</b>\n\n${items}`;

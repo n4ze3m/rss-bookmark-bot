@@ -35,6 +35,49 @@ const main = async () => {
             // sending the message
             bot.sendMessage(chatId, message, { parse_mode: "HTML" });
         });
+        bot.onText(/\/add/, async (msg, match) => {
+            // swap reply 
+            const chatId = msg.chat.id;
+            const message = `<b>${telegramUserName(msg)}</b>, please enter the RSS url you want to add to your bookmarks.`;
+            const newMsg = await bot.sendMessage(chatId, message, {
+                parse_mode: "HTML", reply_markup: {
+                    force_reply: true,
+                }
+            });
+
+            bot.onReplyToMessage(chatId, newMsg.message_id, async (msg) => {
+                // delete the message
+                const id = msg.reply_to_message?.message_id
+                if (id) {
+                    const url = msg.text
+                    // check url is valid
+                    if (url) {
+                        if (!url.match(/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/)) {
+                            // the bot will send a message to the user with the following html markup
+                            const message = `Please enter a valid url 😅 ?`;
+                            // sending the message
+                            bot.sendMessage(chatId, message, { parse_mode: "HTML" });
+                            return;
+                        }
+
+                        const { message, error, keyboard } = await configRssUrl(msg.from?.id.toString()!, url);
+                        if (error) {
+                            bot.sendMessage(chatId, message, { parse_mode: "HTML" });
+                            return;
+                        } else {
+                            // const inline_keyboard = keyboard
+                            bot.sendMessage(chatId, message, { parse_mode: "HTML", reply_markup: { keyboard } });
+                        }
+                        bot.deleteMessage(chatId, id.toString());
+                    } else {
+                        bot.sendMessage(chatId, "Please enter a valid url 😅 ?", { parse_mode: "HTML" });
+                    }
+                } else {
+                    bot.sendMessage(chatId, "Something went wrong. Please try again.");
+                }
+            })
+
+        })
         // /config <url> - to add a new RSS feed
         bot.onText(/\/config (.+)/, async (msg, match) => {
             const chatId = msg.chat.id;
@@ -48,17 +91,26 @@ const main = async () => {
                 const message = `Please enter a valid url 😅 ?`;
                 // sending the message
                 bot.sendMessage(chatId, message, { parse_mode: "HTML" });
+                let warningMsg = `Fyi, /config is deprecated. Please use /add instead.`;
+                bot.sendMessage(chatId, warningMsg, { parse_mode: "HTML" });
                 return;
             }
 
             const { message, error, keyboard } = await configRssUrl(msg.from?.id.toString()!, url);
             if (error) {
                 bot.sendMessage(chatId, message, { parse_mode: "HTML" });
+                let warningMsg = `Fyi, /config is deprecated. Please use /add instead.`;
+                bot.sendMessage(chatId, warningMsg, { parse_mode: "HTML" });
                 return;
             } else {
                 // const inline_keyboard = keyboard
                 bot.sendMessage(chatId, message, { parse_mode: "HTML", reply_markup: { keyboard } });
+                let warningMsg = `Fyi, /config is deprecated. Please use /add instead.`;
+                bot.sendMessage(chatId, warningMsg, { parse_mode: "HTML" });
             }
+
+
+
         });
         // /list - to list all your RSS feeds
         bot.onText(/\/list/, async (msg) => {
